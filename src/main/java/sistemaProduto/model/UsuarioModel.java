@@ -6,7 +6,6 @@ public class UsuarioModel {
     private String nome;
     private int id;
     private String tipo;
-    //private boolean logado;
 
     public UsuarioModel(){
     }
@@ -26,7 +25,5 @@ public class UsuarioModel {
     public void setTipo(String tipo){this.tipo = tipo;}
     public String getTipo(){return tipo;}
 
-    //public void setLogado(boolean logado){this.logado = logado;}
-    //public boolean getlogado(){return logado;}
 
 }

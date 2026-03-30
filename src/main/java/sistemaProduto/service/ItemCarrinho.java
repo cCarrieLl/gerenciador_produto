@@ -1,4 +1,4 @@
-package sistemaProduto;
+package sistemaProduto.service;
 
 public class ItemCarrinho {
     private int id;

@@ -9,10 +9,14 @@ import sistemaProduto.service.GerenciadorUsuario;
 import java.util.Scanner;
 
 public class Interface {
-	private GerenciadorProdutos gerenciador;
-	private GerenciadorUsuario usuario;
-	private Scanner scanner;
+	private final GerenciadorProdutos gerenciador;
+	private final GerenciadorUsuario usuario;
+	private final Scanner scanner;
+	private String tipoUsuario;
+	private boolean estaLogado = false;
 	//private UsuarioModel usuarioAtual;
+
+	//public void setTipoUsuario(String tipoUsuario){this.tipoUsuario = tipoUsuario;}
 
 //finalizar todas as opções
 //Fazer listagem de produtos, vendedor, usuario e carinho de usuario
@@ -20,17 +24,19 @@ public class Interface {
 		this.scanner = new Scanner(System.in);
 		this.gerenciador = new GerenciadorProdutos();
 		this.usuario = new GerenciadorUsuario();
+
 	}
 	
 	
 	public void iniciar() {
-		String opcao = "Escolha uma das opções:" +
-				"\n1 - Logar" +
-				"\n2 - Criar Conta" +
-                "\n3 - Adicionar Produto" +
-                "\n4 - Listar" +
-                "\n5 - Remover" +
-                "\n6 - Sair";
+		String opcao = """
+		Escolha uma das opções:
+		1 - Logar
+		2 - Criar Conta
+		3 - Adicionar Produto
+		4 - Listar
+		5 - Remover
+		6 - Sair""";
 		System.out.println(opcao);
 		
 		int escolha = 0;
@@ -53,7 +59,11 @@ public class Interface {
     }
 
 	public void login(){
-		//UsuarioModel usuarioAtual;
+		if(estaLogado){
+			System.out.println("Conta já logada.");
+			return;
+		}
+
 		System.out.print("Digite o seu email: ");
 		String email = scanner.nextLine();
 
@@ -73,30 +83,50 @@ public class Interface {
 		boolean sucesso =  usuario.login(email, senha);
 
 		if(!sucesso){
-			System.out.println("Erro, verifique se digitou corretamente as informações pedidas.");
+			System.out.println("Erro, verifique se digitou corretamente ou se a conta existe .");
 			return;
 		}
 
 		System.out.println("Login realizado com sucesso.");
 
-		UsuarioModel usuarioAtual = usuario.getUsuarioModel();
+		UsuarioModel usuarioAtual = usuario.getUsuarioAtual();
 
 		if(usuarioAtual == null){
 			System.out.println("Erro interno no login.");
 			return;
 		}
 
-		System.out.println("Seja muito bem vindo " + usuarioAtual.getNome());
+		UsuarioModel u = usuario.getUsuarioAtual();
+		if(u != null){
+			tipoUsuario = u.getTipo();
+		}else{
+			System.out.println("Usuário não cadastrado");
+			return;
+		}
+
+		estaLogado = true;
+		System.out.println("Seja muito bem vindo " + u.getNome());
 
 	}
 
 	public void criaConta(){
-		var list = usuario.lista();
 
-		System.out.println("Qual estilo de conta conta" +
-				"\n1 - Cliente" +
-				"\n2 - Vendedor");
+		System.out.println("""
+				Qual estilo de conta:
+				1 - Cliente
+				2 - Vendedor""");
 		int escolha = scanner.nextInt();
+
+		String tipo;
+
+		if(escolha == 1){
+			tipo = "USUARIOCOMUN";
+		}else if(escolha == 2){
+			tipo = "VENDEDOR";
+		}else{
+			System.out.println("Entrada inválida, tente novamente.");
+			return;
+		}
 
 		scanner.nextLine();
 		System.out.println("Digite o seu email:");
@@ -114,15 +144,10 @@ public class Interface {
 			System.out.println("Erro, senha inválida.");
 		}
 
-		String tipo = "";
+		System.out.print("Digite o nome do perfil:");
+		String nome = scanner.nextLine();
 
-		if(escolha == 1){
-			tipo = "Cliente";
-		}else{
-			tipo = "Vendedor";
-		}
-
-		boolean sucesso = usuario.cadastro(email, senha, tipo);
+		boolean sucesso = usuario.cadastro(nome, email, senha, tipo);
 		if(!sucesso){
 			System.out.println("Usuario já cadastrado.");
 			return;
@@ -133,7 +158,15 @@ public class Interface {
 	}
 
 	public void adicionar(){
+		if(!estaLogado){
+			System.out.println("E preciso estar logado");
+			return;
+		}
 
+		if(tipoUsuario.equals("USUARIOCOMUN")){
+			System.out.println("E necessário ser vendedor para cadastrar algum produto.");
+			return;
+		}
 
 		System.out.println("Digite o ID do produto: ");
 		var num = scanner.nextInt();
@@ -149,9 +182,12 @@ public class Interface {
 		System.out.println("Digite o valor: ");
 		var valor = scanner.nextDouble();
 
+		System.out.println("Digite a quantidade em estoque:");
+		int estoque = scanner.nextInt();
+
 		scanner.nextLine();
 		
-		boolean sucesso = gerenciador.adicionarProduto(num, nome, valor);
+		boolean sucesso = gerenciador.adicionarProduto(num, nome, valor, estoque);
 		
 		if(!sucesso){
 			System.out.println("Erro!!!, verifique as informações solicitadas e o que foi digitado");
@@ -163,6 +199,15 @@ public class Interface {
 	}
 	
 	public void listar() {
+		if(!estaLogado){
+			System.out.println("E preciso estar logado");
+			return;
+		}
+
+		if(tipoUsuario.equals("USUARIOCOMUN")){
+			System.out.println("E necessário ser vendedor para ver produtos cadastrado.");
+			return;
+		}
 		var lista = gerenciador.listar();
 
 		System.out.println("\n--- LISTA DE PRODUTOS ---");
@@ -180,6 +225,16 @@ public class Interface {
 	}
 	
 	public void remover() {
+		if(!estaLogado){
+			System.out.println("E preciso estar logado");
+			return;
+		}
+
+		if(tipoUsuario.equals("USUARIOCOMUN")){
+			System.out.println("E necessário ser vendedor para cadastrar algum produto.");
+			return;
+		}
+
 		var l = gerenciador.listar();
 
 		if(l.isEmpty()){

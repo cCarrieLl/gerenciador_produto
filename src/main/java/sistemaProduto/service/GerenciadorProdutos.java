@@ -12,7 +12,7 @@ public class GerenciadorProdutos {
 		this.produto = new ProdutoDAO();
 	}
 	
-	public boolean adicionarProduto(int id, String nome, double preco) {
+	public boolean adicionarProduto(int id, String nome, double preco, int estoque) {
 		if(nome == null || nome.isBlank() ) {
 			return false;
 		}
@@ -30,6 +30,7 @@ public class GerenciadorProdutos {
 		mod.setId(id);
 		mod.setNome(nome);
 		mod.setPreco(preco);
+		mod.setEstoque(estoque);
 		
 		produto.salvar(mod);
 		return true;

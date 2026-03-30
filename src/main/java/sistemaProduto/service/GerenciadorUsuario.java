@@ -8,10 +8,10 @@ import java.util.List;
 
 public class GerenciadorUsuario {
     private UsuarioDAO usuario;
-     private UsuarioModel usuarioAtual;
+    private UsuarioModel usuarioAtual;
 
      public void setUsuarioModel(UsuarioModel usuarioAtual){this.usuarioAtual = usuarioAtual;}
-     public UsuarioModel getUsuarioModel(){return usuarioAtual;}
+     public UsuarioModel getUsuarioAtual(){return usuarioAtual;}
 
 
     public GerenciadorUsuario(){
@@ -19,34 +19,40 @@ public class GerenciadorUsuario {
     }
 
     public boolean login(String email, String senha){
-        //UsuarioModel model = new UsuarioModel();
-        var lista = usuario.lista();
+        UsuarioModel user = usuario.buscarEmail(email, senha);
 
-        for(UsuarioModel m : lista){
-            if(m.getEmail().equals(email) && m.getSenha().equals(senha)){
-                usuarioAtual = m;
-                return true;
-            }
+        if(usuario != null){
+            usuarioAtual = user;
+            return true;
         }
+
+
         return false;
 
     }
 
     public List<UsuarioModel> lista(){
-        return usuario.lista();
+        return usuario.listaUsuario();
     }
 
 
-    public boolean cadastro(String email, String senha, String escolha) {
+   public boolean cadastro(String nome, String email, String senha, String escolha) {
+        UsuarioModel user = new UsuarioModel();
 
-        for(UsuarioModel v : lista()){
-            if(email.equalsIgnoreCase(v.getNome()) && senha.equals(v.getSenha())){
+        for(UsuarioModel m : lista()){
+            if(email.equals(m.getEmail()) && senha.equals(m.getSenha())){
                 return false;
             }
         }
 
+        user.setNome(nome);
+        user.setEmail(email);
+        user.setSenha(senha);
+        user.setTipo(escolha);
 
-        return true;
+        usuarioAtual = user;
+
+        return usuario.cadastro(nome, email, senha, escolha);
     }
 
 

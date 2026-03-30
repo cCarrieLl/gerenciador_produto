@@ -5,7 +5,11 @@ public class ProdutoModel {
 	private String nome;
 	private double preco;
 	private int estoque;
-//Acrescentar senha em todos model
+	private UsuarioModel vendedor;
+
+	public void setVendedor(UsuarioModel vendedor){this.vendedor = vendedor;}
+	public UsuarioModel getVendedor(){return vendedor;}
+
 	public void setEstoque(int estoque){this.estoque = estoque;}
 	public int getEstoque(){return estoque;}
 	
