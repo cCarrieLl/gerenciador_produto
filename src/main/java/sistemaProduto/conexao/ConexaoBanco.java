@@ -12,10 +12,13 @@ public class ConexaoBanco {
     public static Connection conectar(){
         try {
             Connection conn =DriverManager.getConnection(url, user, password);
+            System.out.println("Conectou");
             return conn;
         }catch(SQLException e){
             return null;
         }
+
+
     }
 
 

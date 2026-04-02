@@ -1,10 +1,8 @@
 package sistemaProduto.view;
 
-//import sistemaProduto.model.UsuarioModel;
 import sistemaProduto.model.UsuarioModel;
 import sistemaProduto.service.GerenciadorProdutos;
 import sistemaProduto.service.GerenciadorUsuario;
-//import sistemaProduto.service.GerenciadorVendedor;
 
 import java.util.Scanner;
 
@@ -12,14 +10,9 @@ public class Interface {
 	private final GerenciadorProdutos gerenciador;
 	private final GerenciadorUsuario usuario;
 	private final Scanner scanner;
-	private String tipoUsuario;
+	private UsuarioModel tipoUsuario;
 	private boolean estaLogado = false;
-	//private UsuarioModel usuarioAtual;
 
-	//public void setTipoUsuario(String tipoUsuario){this.tipoUsuario = tipoUsuario;}
-
-//finalizar todas as opções
-//Fazer listagem de produtos, vendedor, usuario e carinho de usuario
 	public Interface(){
 		this.scanner = new Scanner(System.in);
 		this.gerenciador = new GerenciadorProdutos();
@@ -66,7 +59,6 @@ public class Interface {
 
 		System.out.print("Digite o seu email: ");
 		String email = scanner.nextLine();
-
 		if(email == null || email.isBlank()){
 			System.out.print("Entrada de email inválida, tente novamente:");
 			return;
@@ -74,43 +66,42 @@ public class Interface {
 
 		System.out.print("Digite a sua senha: ");
 		String senha = scanner.nextLine();
-
 		if(senha == null || senha.isBlank()){
 			System.out.println("Entrada de senha inválida, tente novamente");
 			return;
 		}
 
-		boolean sucesso =  usuario.login(email, senha);
-
+		boolean sucesso =  usuario.buscarUsuario(email, senha);
 		if(!sucesso){
 			System.out.println("Erro, verifique se digitou corretamente ou se a conta existe .");
 			return;
 		}
 
-		System.out.println("Login realizado com sucesso.");
-
 		UsuarioModel usuarioAtual = usuario.getUsuarioAtual();
-
 		if(usuarioAtual == null){
-			System.out.println("Erro interno no login.");
+			System.out.println("Verifique se digitou corretamente o seu email e a sua senha.");
 			return;
 		}
 
 		UsuarioModel u = usuario.getUsuarioAtual();
 		if(u != null){
-			tipoUsuario = u.getTipo();
+			tipoUsuario = u;
 		}else{
 			System.out.println("Usuário não cadastrado");
 			return;
 		}
-
 		estaLogado = true;
+
+		System.out.println("Login realizado com sucesso.");
 		System.out.println("Seja muito bem vindo " + u.getNome());
 
 	}
 
 	public void criaConta(){
-
+		if(estaLogado){
+			System.out.println("Conta ja cadastrada.");
+			return;
+		}
 		System.out.println("""
 				Qual estilo de conta:
 				1 - Cliente
@@ -120,7 +111,7 @@ public class Interface {
 		String tipo;
 
 		if(escolha == 1){
-			tipo = "USUARIOCOMUN";
+			tipo = "USUARIOCOMUM";
 		}else if(escolha == 2){
 			tipo = "VENDEDOR";
 		}else{
@@ -133,7 +124,7 @@ public class Interface {
 		String email = scanner.nextLine();
 
 		if (email == null || email.isBlank()) {
-			System.out.println("Erro na entrada do email...");
+			System.out.println("Erro na entrada do email.");
 			return;
 		}
 
@@ -149,7 +140,7 @@ public class Interface {
 
 		boolean sucesso = usuario.cadastro(nome, email, senha, tipo);
 		if(!sucesso){
-			System.out.println("Usuario já cadastrado.");
+			System.out.println("Usuario já possui cadastrado.");
 			return;
 		}
 
@@ -158,36 +149,46 @@ public class Interface {
 	}
 
 	public void adicionar(){
+		UsuarioModel user = usuario.getUsuarioAtual();
+
+		String tipo;
+		if(user != null){
+			tipo = user.getTipo();
+		}else{
+			System.out.println("Algo deu errado. Tente novamente.");
+			return;
+		}
+
 		if(!estaLogado){
 			System.out.println("E preciso estar logado");
 			return;
 		}
 
-		if(tipoUsuario.equals("USUARIOCOMUN")){
-			System.out.println("E necessário ser vendedor para cadastrar algum produto.");
+        if(tipo.equals("USUARIOCOMUM")){
+			System.out.println("E necessário ser um vendedor para cadastrar algum produto.");
 			return;
 		}
 
-		System.out.println("Digite o ID do produto: ");
+		/*System.out.println("Digite o ID do produto: ");
 		var num = scanner.nextInt();
 		if(num <= 0) {
 			System.out.println("Valor de entrada de id, incorreto");
 			return;
-		}
+		}*/
 		
 		scanner.nextLine();
-		System.out.println("Digite o nome do produto:");
+		System.out.print("Digite o nome do produto:");
 		var nome = scanner.nextLine();
 		
-		System.out.println("Digite o valor: ");
+		System.out.print("Digite o valor: R$");
 		var valor = scanner.nextDouble();
 
-		System.out.println("Digite a quantidade em estoque:");
+		System.out.print("Digite a quantidade em estoque:");
 		int estoque = scanner.nextInt();
 
 		scanner.nextLine();
 		
-		boolean sucesso = gerenciador.adicionarProduto(num, nome, valor, estoque);
+		boolean sucesso = gerenciador.adicionarProduto(nome, valor, estoque);
 		
 		if(!sucesso){
 			System.out.println("Erro!!!, verifique as informações solicitadas e o que foi digitado");
@@ -199,26 +200,40 @@ public class Interface {
 	}
 	
 	public void listar() {
+		UsuarioModel user = usuario.getUsuarioAtual();
+		//String tipo;
+
+		if(user == null){
+			System.out.println("Algo deu errado. Tente novamente.");
+			return;
+		}
+
 		if(!estaLogado){
 			System.out.println("E preciso estar logado");
 			return;
 		}
 
-		if(tipoUsuario.equals("USUARIOCOMUN")){
-			System.out.println("E necessário ser vendedor para ver produtos cadastrado.");
+		if(tipoUsuario.equals("USUARIOCOMUM")){
+			System.out.println("E necessário ser um vendedor para ver produtos cadastrado.");
 			return;
 		}
+
 		var lista = gerenciador.listar();
 
 		System.out.println("\n--- LISTA DE PRODUTOS ---");
 
 		if(lista.isEmpty()){
 			System.out.println("Nenhum produto cadastrado.");
+			System.out.println("====================\n");
+			return;
 		}
 		
 		for(var produto : lista) {
-			System.out.println("ID:" + produto.getId() + " | Nome:" + produto.getNome() + " | Preço:R$" +
-					produto.getPreco() + " | Quantidade em Estoque:" + produto.getEstoque());
+			System.out.println("Vendedor: " + produto.getVendedor() +
+					" | ID:" + produto.getId() +
+					" | Nome:" + produto.getVendedor() +
+					" | Preço:R$" + produto.getPreco() +
+					" | Quantidade em Estoque:" + produto.getEstoque());
 		}
 
 		System.out.println("====================\n");
@@ -244,20 +259,18 @@ public class Interface {
 
 		listar();
 
-		System.out.println("\nEscolha o produto que quer remover: ");
+		System.out.println("\nEscolha o produto que quer remover(ID): ");
 		System.out.print("\nDigite: ");
-		var num = scanner.nextInt();
+		var id= scanner.nextInt();
 
-		num-=1;
-		boolean sucesso = gerenciador.remover(num);
+		boolean sucesso = gerenciador.removerItem(id, tipoUsuario);
 		
 		if(!sucesso) {
 			System.out.println("Id não existente, tente novamente");
 			return;
 		}
-
 		
-		System.out.println("Produto do Id " + (num +=1) + " removido com sucesso.");
+		System.out.println("Produto removido com sucesso.");
 	}
 	
 }

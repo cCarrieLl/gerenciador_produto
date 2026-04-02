@@ -14,7 +14,7 @@ public class UsuarioDAO {
         //this.usuario = new ArrayList<>();
     }
 
-    public boolean cadastro(String nome, String email, String senha, String tipo){
+    public boolean cadastroUsuario(String nome, String email, String senha, String tipo){
         String sql = "INSERT INTO usuarios (nome, email, senha, tipo) VALUES (?,?,?,?)";
 
         try{
@@ -40,19 +40,23 @@ public class UsuarioDAO {
    public UsuarioModel buscarEmail(String email, String senha){
        Connection conn = ConexaoBanco.conectar();
        UsuarioModel usuario = null;
-       String sql = "SELECT id, email, nome, tipo FROM usuario WHERE email = ? AND senha = ?";
 
-        if(conn == null){
+       String sql = "SELECT id, email, nome, tipo FROM usuarios WHERE email = ? AND senha = ?";
+
+       /*if(conn == null){
             return null;
-        }
+        }*/
 
         try{
             PreparedStatement comando = conn.prepareStatement(sql);
             comando.setString(1, email);
             comando.setString(2, senha);
+
             ResultSet rs = comando.executeQuery();
 
             if (rs.next()) {
+                usuario = new UsuarioModel();
+
                 usuario.setId(rs.getInt("id"));
                 usuario.setNome(rs.getString("nome"));
                 usuario.setEmail(rs.getString("email"));
@@ -64,10 +68,12 @@ public class UsuarioDAO {
             conn.close();
 
         }catch(SQLException e){
+            e.printStackTrace();
             return null;
         }
 
-        return usuario;
+
+       return usuario;
    }
 
     public List<UsuarioModel> listaUsuario(){
@@ -98,8 +104,7 @@ public class UsuarioDAO {
             conn.close();
 
         }catch(SQLException e){
-            var mensagem = "Erro ao listar usuários: " + e.getMessage();
-            return lista;
+            return null;
         }
         return lista;
     }

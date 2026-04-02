@@ -1,31 +1,110 @@
 package sistemaProduto.DAO;
 
+import sistemaProduto.conexao.ConexaoBanco;
 import sistemaProduto.model.ProdutoModel;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ProdutoDAO {
-	private ArrayList<ProdutoModel> produtos;
-	
-	
+
 	public ProdutoDAO() {
-		this.produtos = new ArrayList<>();
 	}
 
-	
-	public boolean salvar(ProdutoModel mod){
-		produtos.add(mod);
-		return true;
+	public boolean remover(int idProduto, int idVendedor){
+		Connection conn = ConexaoBanco.conectar();
+		if(conn == null){
+			return false;
+		}
+
+		String sql = "DELETE FROM produtos WHERE id = ? AND usuario_id = ?";
+
+		try{
+			PreparedStatement comando = conn.prepareStatement(sql);
+			ResultSet rs = comando.executeQuery();
+
+			comando.setInt(1, idProduto);
+			comando.setInt(2, idVendedor);
+
+			int linhasAfetadas = comando.executeUpdate(); // retorna quantas linhas foram deletadas
+
+			comando.close();
+			rs.close();
+			conn.close();
+
+			return linhasAfetadas > 0;
+		}catch(SQLException e){
+			return false;
+		}
 	}
-	
-	public void remover(int id) {
-		produtos.remove(id);
+
+	public boolean adicionandoProduto(String nome, double preco, int estoque){
+		Connection conn = ConexaoBanco.conectar();
+
+		if(conn == null){
+			return false;
+		}
+
+		String sql = "INSERT INTO produtos (nome, preco, estoque) VALUES (?, ?, ?)";
+
+
+		try{
+			conn = ConexaoBanco.conectar();
+			PreparedStatement comando = conn.prepareStatement(sql);
+
+			comando.setString(1, nome);
+			comando.setDouble(2, preco);
+			comando.setInt(3, estoque);
+
+			comando.executeUpdate();
+
+			comando.close();
+			conn.close();
+
+			return true;
+		}catch(SQLException e){
+			return false;
+		}
+
 	}
-	
 	
 	public List<ProdutoModel> listar() {
-		return produtos;
+		Connection conn = ConexaoBanco.conectar();
+		List<ProdutoModel> produto = new ArrayList<>();
+
+		String sql = "SELECT p.nomeProduto, p.preco, p.estoque, u.nome AS vendedor " +
+				"FROM produtos p " +
+				"JOIN usuarios u ON p.usuario_id = u.id";
+
+		if(conn == null){
+			return produto;
+		}
+
+		try{
+			PreparedStatement comando = conn.prepareStatement(sql);
+			ResultSet rs = comando.executeQuery();
+
+
+			while(rs.next()){
+				ProdutoModel p = new ProdutoModel();
+				p.setNomeProduto(rs.getString("nomeProduto"));
+				p.setVendedor(rs.getString("vendedor"));
+				p.setPreco(rs.getDouble("preco"));
+				p.setEstoque(rs.getInt("estoque"));
+				produto.add(p);
+			}
+
+			rs.close();
+			comando.close();
+			conn.close();
+		}catch(SQLException e){
+			return null;
+		}
+		return produto;
 	}
 
 }

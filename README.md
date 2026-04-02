@@ -20,20 +20,20 @@ O projeto ainda está em desenvolvimento. Algumas funcionalidades podem não est
 ### 👤 2. Controle de Sessão
 - Verificação se o usuário está logado  
 - Bloqueio de ações para usuários não autenticados  
-- Exibição das informações do usuário atual (nome e e-mail)  
+- Exibição das informações do usuário atual (vendedor e e-mail)  
 
 ---
 
 ### 🛒 3. Gerenciamento de Produtos
 - ✔ Criar produto  
   - Requer usuário logado  
-  - *(ideal: apenas vendedores podem criar)*  
+  - *(apenas vendedores podem criar)*  
 
 - ✔ Listar produtos  
   - Disponível para todos os usuários  
 
 - ✔ Remover produto  
-  - *(ideal: apenas o criador do produto ou um administrador)*  
+  - *(apenas o criador do produto ou um administrador)*  
 
 ---
 
