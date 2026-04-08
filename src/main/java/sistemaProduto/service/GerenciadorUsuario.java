@@ -12,7 +12,6 @@ public class GerenciadorUsuario {
     public void setUsuarioModel(UsuarioModel usuarioAtual){this.usuarioAtual = usuarioAtual;}
     public UsuarioModel getUsuarioAtual(){return usuarioAtual;}
 
-
     public GerenciadorUsuario(){
         this.usuario = new UsuarioDAO();
     }
@@ -20,7 +19,6 @@ public class GerenciadorUsuario {
     public List<UsuarioModel> lista(){
         return usuario.listaUsuario();
     }
-
 
    public boolean cadastro(String nome, String email, String senha, String escolha) {
        UsuarioModel user = new UsuarioModel();
